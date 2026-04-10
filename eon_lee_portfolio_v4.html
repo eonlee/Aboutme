@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eon Lee — Events Producer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@200;300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0A0A0A;
+  --bg1:      #111111;
+  --bg2:      #181818;
+  --bg3:      #202020;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --red:      #D13639;
+  --red2:     #E8474A;
+  --red-glow: rgba(209,54,57,0.1);
+  --text:     #E8E6E3;
+  --text2:    #8A8A8A;
+  --text3:    #555555;
+  --display:  'Bebas Neue', sans-serif;
+  --body:     'Outfit', sans-serif;
+  --mono:     'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ─── REVEAL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+              transform 0.75s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.2s; }
+.d3 { transition-delay: 0.3s; }
+.d4 { transition-delay: 0.45s; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 max(24px, 5vw);
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+
+.nav-logo {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--text);
+}
+.nav-logo span { color: var(--red); }
+
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text2);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 980px;
+  background: var(--red);
+  color: #fff;
+  font-weight: 400;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--red2); }
+
+.nav-toggle { display: none; cursor: pointer; background: none; border: none; padding: 8px; }
+.nav-toggle span { display: block; width: 20px; height: 2px; background: var(--text); margin: 5px 0; border-radius: 2px; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100svh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px max(24px, 5vw) 80px;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+}
+
+
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-name {
+  font-family: var(--display);
+  font-size: clamp(22px, 3.5vw, 40px);
+  letter-spacing: 6px;
+  color: var(--text);
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.1s forwards;
+}
+.hero-name em { font-style: normal; color: var(--red); }
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.25s forwards;
+}
+
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(56px, 9vw, 120px);
+  line-height: 0.93;
+  letter-spacing: 2px;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero h1 em { font-style: normal; color: var(--red); }
+
+.hero-sub {
+  font-size: clamp(15px, 1.6vw, 17px);
+  color: var(--text2);
+  max-width: 540px;
+  line-height: 1.8;
+  margin-bottom: 56px;
+  font-weight: 300;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.55s forwards;
+}
+
+.hero-stats {
+  display: flex;
+  gap: clamp(28px, 4vw, 56px);
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp 0.8s 0.7s forwards;
+  flex-wrap: wrap;
+}
+
+.stat-num {
+  font-family: var(--display);
+  font-size: clamp(36px, 4vw, 52px);
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-top: 6px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── SECTION WRAPPER ─── */
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 100px max(24px, 5vw);
+}
+
+.sec-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 12px;
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(36px, 5vw, 58px);
+  letter-spacing: 1px;
+  margin-bottom: 52px;
+  line-height: 1;
+}
+
+/* ─── ABOUT ─── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 80px);
+  align-items: start;
+}
+
+.about-text p {
+  color: var(--text2);
+  font-size: 15px;
+  margin-bottom: 20px;
+  line-height: 1.85;
+  font-weight: 300;
+}
+.about-text p strong { color: var(--text); font-weight: 500; }
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.comp-item {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.25s, background 0.25s;
+}
+.comp-item:hover {
+  border-color: rgba(209,54,57,0.35);
+  background: var(--bg2);
+}
+.comp-item span {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 5px;
+}
+
+/* ─── PROJECTS ─── */
+.project-item {
+  border-top: 1px solid var(--border);
+  padding: 48px 0;
+  display: grid;
+  grid-template-columns: 200px 1fr 180px;
+  gap: 40px;
+  align-items: start;
+  transition: background 0.2s;
+}
+.project-item:last-child { border-bottom: 1px solid var(--border); }
+
+.project-left {}
+
+.project-year {
+  font-family: var(--display);
+  font-size: clamp(56px, 6vw, 80px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.12);
+  letter-spacing: 2px;
+  transition: -webkit-text-stroke 0.3s;
+}
+
+.project-item:hover .project-year {
+  -webkit-text-stroke: 1px rgba(209,54,57,0.4);
+}
+
+.project-role {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 10px;
+}
+
+.project-title {
+  font-family: var(--display);
+  font-size: clamp(22px, 2.5vw, 30px);
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  line-height: 1.1;
+}
+
+.project-desc {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.75;
+  margin-bottom: 18px;
+  font-weight: 300;
+}
+
+.project-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 4px 11px;
+  border-radius: 980px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  transition: border-color 0.2s, color 0.2s;
+}
+.pill-tag:hover { border-color: rgba(209,54,57,0.4); color: var(--text); }
+
+.project-metric { text-align: right; }
+
+.metric-num {
+  font-family: var(--display);
+  font-size: clamp(28px, 3vw, 40px);
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: 1px;
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 5px;
+}
+
+.metric-pair { margin-bottom: 20px; }
+
+/* ─── GAMING DNA ─── */
+.gaming-outer {
+  background: var(--bg1);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.gaming-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 100px max(24px, 5vw);
+}
+
+.gaming-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(32px, 4vw, 56px);
+  margin-top: 52px;
+}
+
+.gaming-item {
+  position: relative;
+  padding: 32px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 0.25s;
+}
+.gaming-item:hover { border-color: rgba(209,54,57,0.3); }
+
+.gaming-item::before {
+  content: attr(data-num);
+  font-family: var(--display);
+  font-size: 80px;
+  color: rgba(255,255,255,0.03);
+  position: absolute;
+  top: 12px; right: 16px;
+  line-height: 1;
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+.gaming-item h3 {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+  line-height: 1;
+}
+
+.gaming-item p {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.75;
+  font-weight: 300;
+}
+
+/* ─── CAREER ─── */
+.career-outer {
+  background: var(--bg);
+}
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 32px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  transition: padding-left 0.2s;
+}
+.tl-row:last-child { border-bottom: 1px solid var(--border); }
+.tl-row:hover { padding-left: 8px; }
+
+.tl-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  padding-top: 2px;
+}
+.tl-loc {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+}
+
+.tl-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.tl-sub {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.tl-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid rgba(209,54,57,0.3);
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+/* ─── SKILLS ─── */
+.skills-outer {
+  background: var(--bg1);
+  border-top: 1px solid var(--border);
+}
+
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 52px;
+}
+
+.sk-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  transition: border-color 0.25s;
+}
+.sk-box:hover { border-color: rgba(209,54,57,0.25); }
+
+.sk-box h3 {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.sk-box ul { list-style: none; }
+.sk-box li {
+  color: var(--text2);
+  font-size: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+.sk-box li:last-child { border-bottom: none; }
+
+/* ─── CONTACT ─── */
+.contact-outer {
+  padding: 120px max(24px, 5vw);
+  text-align: center;
+  background: radial-gradient(ellipse 60% 50% at 50% 100%, var(--red-glow), transparent 70%);
+  border-top: 1px solid var(--border);
+}
+
+.contact-title {
+  font-family: var(--display);
+  font-size: clamp(40px, 6vw, 72px);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.contact-sub {
+  color: var(--text2);
+  font-size: 15px;
+  font-weight: 300;
+  margin-bottom: 48px;
+  line-height: 1.7;
+}
+
+.contact-btns {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border-radius: 980px;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  transition: all 0.2s;
+}
+.btn:hover { border-color: var(--text2); }
+.btn.fill { background: var(--red); border-color: var(--red); color: #fff; }
+.btn.fill:hover { background: var(--red2); border-color: var(--red2); }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px max(24px, 5vw);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-langs {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-lang {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+}
+.footer-lang span { color: var(--red); margin-left: 6px; }
+
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+}
+
+/* ─── DIVIDER ─── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 960px) {
+  .nav-links { display: none; }
+  .nav-toggle { display: block; }
+  .nav-links.open {
+    display: flex !important; flex-direction: column;
+    position: absolute; top: 60px; left: 0; right: 0;
+    background: rgba(10,10,10,0.97); backdrop-filter: blur(20px);
+    padding: 24px; gap: 20px;
+    border-bottom: 1px solid var(--border);
+    list-style: none;
+  }
+
+  .about-grid { grid-template-columns: 1fr; }
+  .gaming-grid { grid-template-columns: 1fr; max-width: 500px; }
+  .sk-grid { grid-template-columns: 1fr; }
+  .tl-row { grid-template-columns: 1fr; gap: 8px; }
+
+  .project-item {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .project-year { font-size: 52px; }
+  .project-metric { text-align: left; }
+}
+
+@media (max-width: 640px) {
+  .nav-cta { display: none; }
+  .hero-stats { gap: 24px; }
+  .comp-grid { grid-template-columns: 1fr; }
+  .contact-btns { flex-direction: column; align-items: center; }
+  footer { flex-direction: column; align-items: flex-start; }
+}
+
+@media (min-width: 1400px) {
+  .wrap, .hero, .gaming-inner, .career-outer .wrap, .skills-outer .wrap {
+    padding-left: max(5vw, calc((100vw - 1240px) / 2));
+    padding-right: max(5vw, calc((100vw - 1240px) / 2));
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">EON LEE<span>.</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#gaming">Gaming DNA</a></li>
+    <li><a href="#career">Career</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="mailto:eonlee813@gmail.com" class="nav-cta">Get in Touch</a>
+  <button class="nav-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-name">SOOYEONG <em>(EON)</em> LEE</div>
+    <div class="hero-tag">Events Producer · Seoul → Open to Relocation</div>
+    <h1>I BUILD<br>WORLDS THAT<br><em>PLAYERS</em><br>REMEMBER</h1>
+    <p class="hero-sub">13 years producing stadium-scale esports events, live broadcasts, and global flagship launches across 20+ countries. Driven by player empathy and a lifetime of competitive gaming.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">86+</div>
+        <div class="stat-label">Global Projects</div>
+      </div>
+      <div>
+        <div class="stat-num">20+</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div>
+        <div class="stat-num">$100M+</div>
+        <div class="stat-label">Budget Managed</div>
+      </div>
+      <div>
+        <div class="stat-num">1.34M</div>
+        <div class="stat-label">Peak Live Viewers</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap reveal">
+    <div class="sec-label">About</div>
+    <div class="sec-title">THE FULL PICTURE</div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p><strong>SooYeong (Eon) Lee</strong> is a Senior Manager of Global Experiential Marketing at Cheil Worldwide, Samsung's global marketing agency. Over 13 years, he has directed the full lifecycle of live events — from creative concept and stakeholder alignment through on-site execution — for esports tournaments, Olympic activations, developer conferences, and global product launches.</p>
+        <p>His work spans the <strong>Gamescom Samsung Gaming Festival</strong>, the <strong>Fortnite Korea Open</strong>, <strong>Samsung Galaxy Unpacked</strong>, and the <strong>Milano Cortina Winter Olympics Samsung House</strong>. He was awarded <strong>Professional of the Year</strong> at Cheil Worldwide in 2025.</p>
+        <p>A lifelong gamer since the Famicom era, Eon's approach to event production is rooted in <strong>player empathy</strong> — understanding what transforms a live moment into an unforgettable fan experience.</p>
+      </div>
+      <div class="comp-grid">
+        <div class="comp-item"><span>Production</span>Live &amp; Broadcast Shows</div>
+        <div class="comp-item"><span>Esports</span>Tournaments &amp; Fan Zones</div>
+        <div class="comp-item"><span>Creative</span>Set Design · AV · Lighting</div>
+        <div class="comp-item"><span>Ceremonies</span>Opening Shows &amp; VIP Events</div>
+        <div class="comp-item"><span>Budget</span>$100M+ Event Scopes</div>
+        <div class="comp-item"><span>Ticketing</span>Sales Strategy &amp; Demand Gen</div>
+        <div class="comp-item"><span>Vendors</span>RFP · Contracts · Procurement</div>
+        <div class="comp-item"><span>Security</span>Physical Security &amp; Risk Plans</div>
+        <div class="comp-item"><span>Logistics</span>Travel · Hotels · VIP Itineraries</div>
+        <div class="comp-item"><span>Compliance</span>IOC &amp; Government Protocols</div>
+        <div class="comp-item"><span>Global</span>20+ Country Execution</div>
+        <div class="comp-item"><span>Leadership</span>Cross-Functional Teams (100+)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" style="background: var(--bg1); border-top: 1px solid var(--border);">
+  <div class="wrap reveal">
+    <div class="sec-label">Selected Work</div>
+    <div class="sec-title">KEY PROJECTS</div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">2025</div>
+        <div class="project-role">Project Director</div>
+      </div>
+      <div>
+        <div class="project-title">GAMESCOM SAMSUNG GAMING FESTIVAL</div>
+        <div class="project-desc">Directed stadium-scale show production in Cologne — set design, creative audio &amp; lighting, and live broadcast content. Integrated pro-gamers and influencers through hybrid competitions. Conceptualized multi-IP fan zones for PUBG, Genshin Impact, Honkai: Star Rail, and Mongil. Managed vendor RFPs and on-site operations for 1,500 daily attendees.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Esports</span>
+          <span class="pill-tag">Live Show</span>
+          <span class="pill-tag">Fan Zones</span>
+          <span class="pill-tag">Broadcast</span>
+          <span class="pill-tag">Cologne</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">250K</div>
+          <div class="metric-label">Peak Live Viewers</div>
+        </div>
+        <div class="metric-pair">
+          <div class="metric-num">+67%</div>
+          <div class="metric-label">vs. Previous Year</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">2018</div>
+        <div class="project-role">Tournament Producer</div>
+      </div>
+      <div>
+        <div class="project-title">EPIC GAMES · FORTNITE KOREA OPEN</div>
+        <div class="project-desc">Produced Korea's first national Fortnite tournament — from PC-bang qualifiers to a sold-out 3,500-seat stadium final. Developed ticketing strategy that sold 1,000 early-bird tickets in 2 days and hit 100% capacity. Partnered with game development teams to synchronize in-game mechanics with live stage effects. Coordinated international talent logistics and influencer programs.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Esports</span>
+          <span class="pill-tag">Stadium Final</span>
+          <span class="pill-tag">In-Game Integration</span>
+          <span class="pill-tag">Ticket Strategy</span>
+          <span class="pill-tag">Seoul · Busan</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">1.34M</div>
+          <div class="metric-label">Online Viewers</div>
+        </div>
+        <div class="metric-pair">
+          <div class="metric-num">100%</div>
+          <div class="metric-label">Stadium Capacity</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">2026</div>
+        <div class="project-role">Operations Lead</div>
+      </div>
+      <div>
+        <div class="project-title">MILANO CORTINA WINTER OLYMPICS · SAMSUNG HOUSE</div>
+        <div class="project-desc">Produced the Samsung House Opening Ceremony and athlete engagement programs for 2,950 participants across 90 nations. Managed physical security plans and risk assessments for VIP operations. Navigated strict IOC compliance and government protocols across 6 mountain clusters. Managed all logistics, vendor contracts, and equipment sourcing.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Opening Ceremony</span>
+          <span class="pill-tag">Security &amp; Risk</span>
+          <span class="pill-tag">VIP Ops</span>
+          <span class="pill-tag">IOC Compliance</span>
+          <span class="pill-tag">Italy</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">670%</div>
+          <div class="metric-label">Marketing ROI</div>
+        </div>
+        <div class="metric-pair">
+          <div class="metric-num">99%</div>
+          <div class="metric-label">Device Activation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">2019<br>2025</div>
+        <div class="project-role">Show Director</div>
+      </div>
+      <div>
+        <div class="project-title">SAMSUNG GALAXY UNPACKED</div>
+        <div class="project-desc">Directed global launch ceremonies and keynote sessions in New York. Led creative vision for set design, lighting, and video content. Managed live broadcast execution ensuring global synchronization. Partnered with product and engineering teams on production timelines and deliverables.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Live Broadcast</span>
+          <span class="pill-tag">Keynote Direction</span>
+          <span class="pill-tag">Show Production</span>
+          <span class="pill-tag">New York</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">580K</div>
+          <div class="metric-label">Peak Live Viewers</div>
+        </div>
+        <div class="metric-pair">
+          <div class="metric-num">+29%</div>
+          <div class="metric-label">vs. Previous Year</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">21–24</div>
+        <div class="project-role">Project Director</div>
+      </div>
+      <div>
+        <div class="project-title">SAMSUNG DEVELOPERS CONFERENCE</div>
+        <div class="project-desc">Directed annual flagship conferences in San Francisco &amp; San Jose. Oversaw keynote production, developer programs, and full on-site operations. Partnered with product and engineering teams to translate technical roadmaps into community-focused experiences.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Conference</span>
+          <span class="pill-tag">Developer</span>
+          <span class="pill-tag">Keynote</span>
+          <span class="pill-tag">San Jose</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">300%</div>
+          <div class="metric-label">Attendance Growth</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-left">
+        <div class="project-year">15–25</div>
+        <div class="project-role">Event Lead</div>
+      </div>
+      <div>
+        <div class="project-title">CES · IFA BERLIN · MWC BARCELONA</div>
+        <div class="project-desc">Directed Samsung's flagship exhibition presence at CES, IFA, and MWC over a decade. Managed large-scale booth operations for 150,000+ visitors, media conference productions, and end-to-end exhibition strategies across Mobile and Digital Appliances divisions.</div>
+        <div class="project-pills">
+          <span class="pill-tag">Exhibition</span>
+          <span class="pill-tag">Media Conference</span>
+          <span class="pill-tag">Global</span>
+          <span class="pill-tag">Las Vegas · Berlin · Barcelona</span>
+        </div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair">
+          <div class="metric-num">150K+</div>
+          <div class="metric-label">Global Visitors</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GAMING DNA -->
+<div class="gaming-outer" id="gaming">
+  <div class="gaming-inner reveal">
+    <div class="sec-label">Player DNA</div>
+    <div class="sec-title">WHY I BUILD FOR PLAYERS</div>
+    <div class="gaming-grid">
+      <div class="gaming-item" data-num="01">
+        <h3>INDUSTRY ROOTS</h3>
+        <p>Active player since the Famicom era — 500+ titles across three decades. Deep connection to the LoL esports ecosystem and the energy of live community moments.</p>
+      </div>
+      <div class="gaming-item" data-num="02">
+        <h3>COMPETITIVE EDGE</h3>
+        <p>Nationally ranked top 300 in KartRider. The grind forged a high-pressure mindset and visceral understanding of what makes competitive moments unforgettable.</p>
+      </div>
+      <div class="gaming-item" data-num="03">
+        <h3>COMMUNITY BUILDER</h3>
+        <p>Led a Mabinogi guild for 10 years — managing player sentiment, resolving conflicts, and building the kind of lasting bonds that define real communities.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div class="career-outer" id="career">
+  <div class="wrap reveal">
+    <div class="sec-label">Career</div>
+    <div class="sec-title">EXPERIENCE</div>
+
+    <div class="tl-row">
+      <div>
+        <div class="tl-date">Sep 2012 – Mar 2026</div>
+        <div class="tl-loc">Seoul, South Korea</div>
+      </div>
+      <div>
+        <div class="tl-title">Senior Manager, Global Experiential Marketing</div>
+        <div class="tl-sub">Cheil Worldwide (Samsung's Global Marketing Agency) — 86+ events across 20+ countries. Directed cross-functional teams of up to 100 members. Managed budgets exceeding $100M.</div>
+        <span class="tl-badge">★ Professional of the Year 2025</span>
+      </div>
+    </div>
+
+    <div class="tl-row">
+      <div>
+        <div class="tl-date">Aug 2019 – Mar 2020</div>
+        <div class="tl-loc">Riyadh &amp; Jeddah, Saudi Arabia</div>
+      </div>
+      <div>
+        <div class="tl-title">Overseas Deployment — Field Expert</div>
+        <div class="tl-sub">Produced public engagement programs in collaboration with government and academic partners. Navigated complex multi-city logistics and strict national protocols.</div>
+      </div>
+    </div>
+
+    <div class="tl-row">
+      <div>
+        <div class="tl-date">Aug 2011 – Sep 2012</div>
+        <div class="tl-loc">Seoul, South Korea</div>
+      </div>
+      <div>
+        <div class="tl-title">Trade Associate — Samsung C&amp;T, Solar Energy Division</div>
+        <div class="tl-sub">Joined Samsung C&T's competitive GSAT recruitment process, ranking 1st. Supported global sourcing and supply operations for solar panel procurement.</div>
+      </div>
+    </div>
+
+    <div class="tl-row">
+      <div>
+        <div class="tl-date">2005 – 2011</div>
+        <div class="tl-loc">Pohang, South Korea</div>
+      </div>
+      <div>
+        <div class="tl-title">B.B.A. &amp; Economics — Handong Global University</div>
+        <div class="tl-sub">GPA: 4.1 / 4.5</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="skills-outer">
+  <div class="wrap reveal">
+    <div class="sec-label">Toolkit</div>
+    <div class="sec-title">SKILLS &amp; LANGUAGES</div>
+    <div class="sk-grid">
+      <div class="sk-box">
+        <h3>Languages</h3>
+        <ul>
+          <li>English — Native</li>
+          <li>Korean — Native</li>
+          <li>Japanese — Conversational (JLPT N2)</li>
+        </ul>
+      </div>
+      <div class="sk-box">
+        <h3>Tools</h3>
+        <ul>
+          <li>Adobe Illustrator · Photoshop · Premiere</li>
+          <li>Figma</li>
+          <li>PowerPoint · Keynote (Advanced)</li>
+          <li>Python (Data Automation)</li>
+        </ul>
+      </div>
+      <div class="sk-box">
+        <h3>Certifications</h3>
+        <ul>
+          <li>MS Office Master Certified</li>
+          <li>OPIc — Advanced (English)</li>
+          <li>TOEIC 980 / 990</li>
+          <li>JLPT N2 (Japanese)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact-outer" id="contact">
+  <div class="contact-title reveal">LET'S BUILD SOMETHING<br>UNFORGETTABLE</div>
+  <p class="contact-sub reveal d1">Seoul-based. Open to global relocation. Ready to bring world-class live production to the games industry.</p>
+  <div class="contact-btns reveal d2">
+    <a href="mailto:eonlee813@gmail.com" class="btn fill">eonlee813@gmail.com</a>
+    <a href="https://linkedin.com/in/eonlee8" class="btn" target="_blank">LinkedIn</a>
+    <a href="tel:+821062710688" class="btn">+82-10-6271-0688</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-langs">
+    <div class="footer-lang">English<span>Native</span></div>
+    <div class="footer-lang">한국어<span>Native</span></div>
+    <div class="footer-lang">日本語<span>JLPT N2</span></div>
+  </div>
+  <div class="footer-copy">© 2026 SooYeong (Eon) Lee · Seoul, South Korea</div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background =
+    window.scrollY > 60 ? 'rgba(10,10,10,0.95)' : 'rgba(10,10,10,0.85)';
+}, { passive: true });
+</script>
+</body>
+</html>
