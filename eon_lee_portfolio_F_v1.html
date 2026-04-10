@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eon Lee — Events Producer · v12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@200;300;400;500;600;700;800;900&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #000000;
+  --bg1:     #0A0A0A;
+  --bg2:     #111111;
+  --bg3:     #1C1C1C;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --red:     #D4313A;
+  --red2:    #FF4C57;
+  --text:    #F5F5F7;
+  --text2:   #B8B8BE;
+  --text3:   #888890;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 300; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── APPLE-STYLE ANIMATION SYSTEM ── */
+/* Base: all animated elements start invisible */
+[data-anim] {
+  opacity: 0;
+  transition-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+[data-anim="up"]    { transform: translateY(36px); }
+[data-anim="left"]  { transform: translateX(-44px); }
+[data-anim="right"] { transform: translateX(44px); }
+[data-anim="scale"] { transform: scale(0.91) translateY(20px); }
+[data-anim="fade"]  { transform: none; }
+
+/* Visible state */
+[data-anim].in {
+  opacity: 1;
+  transform: none !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-anim] { transform: none !important; }
+  [data-anim].in { transition: opacity 0.3s ease !important; }
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 56px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 max(24px,5vw);
+  background: rgba(0,0,0,0.75); backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border); transition: background 0.3s;
+}
+.nav-logo { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.nav-logo span { color: var(--red); }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { font-size: 13px; font-weight: 400; color: var(--text2); transition: color 0.2s; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  font-size: 12px; font-weight: 600; padding: 7px 20px; border-radius: 980px;
+  background: var(--red); color: #fff; white-space: nowrap; transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--red2); }
+.nav-toggle { display: none; cursor: pointer; background: none; border: none; padding: 8px; }
+.nav-toggle span { display: block; width: 20px; height: 2px; background: var(--text); margin: 5px 0; border-radius: 2px; }
+
+/* ══════════════════════════════
+   HERO — V3 exact
+══════════════════════════════ */
+.hero {
+  min-height: 100svh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 120px max(24px,8vw) 80px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(212,49,58,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(212,49,58,0.05) 0%, transparent 60%);
+}
+.hero::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%);
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--red2); margin-bottom: 28px; padding: 6px 18px;
+  border: 1px solid rgba(212,49,58,0.35); border-radius: 980px;
+  position: relative; z-index: 1;
+  opacity: 0; animation: fu 0.8s 0.1s forwards;
+}
+.hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+.hero-headline {
+  font-size: clamp(60px,11vw,140px); font-weight: 800; line-height: 1;
+  letter-spacing: -0.04em; color: var(--text); margin-bottom: 12px;
+  position: relative; z-index: 1;
+  opacity: 0; animation: fu 0.8s 0.25s forwards;
+}
+.hero-headline::after {
+  content: ''; display: block; width: 64px; height: 3px;
+  background: var(--red); margin: 20px auto 0; border-radius: 2px;
+}
+.hero-sub {
+  font-size: clamp(16px,2.2vw,22px); font-weight: 300; color: var(--text2);
+  letter-spacing: -0.01em; margin-bottom: 48px; max-width: 580px;
+  position: relative; z-index: 1;
+  opacity: 0; animation: fu 0.8s 0.4s forwards;
+}
+.hero-pills {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  margin-bottom: 72px; position: relative; z-index: 1;
+  opacity: 0; animation: fu 0.8s 0.52s forwards;
+}
+.pill {
+  font-size: 13px; font-weight: 400; padding: 8px 18px; border-radius: 980px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text2);
+}
+.hero-stats-row {
+  display: flex; gap: clamp(32px,6vw,80px); justify-content: center;
+  position: relative; z-index: 1;
+  opacity: 0; animation: fu 0.8s 0.65s forwards;
+}
+.hero-stat-num {
+  font-size: clamp(40px,6vw,72px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--text);
+}
+.hero-stat-label {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3); margin-top: 6px;
+}
+.hero-scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  opacity: 0; animation: fu 0.8s 0.8s forwards;
+}
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--red), transparent); margin: 0 auto; }
+
+@keyframes fu { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+
+/* ══════════════════════════════
+   CATCHPHRASE SECTION
+══════════════════════════════ */
+.catchphrase {
+  background: var(--bg1); border-top: 1px solid var(--border);
+  min-height: 80svh; display: flex; align-items: center;
+  padding: 100px max(24px,8vw);
+}
+.catchphrase-inner { max-width: 1200px; margin: 0 auto; width: 100%; }
+.catch-label {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 40px;
+  display: flex; align-items: center; gap: 14px;
+}
+.catch-label::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--red); opacity: 0.5; }
+.catch-text {
+  font-size: clamp(48px,9vw,110px); font-weight: 800; line-height: 1;
+  letter-spacing: -0.03em; color: var(--text);
+}
+.catch-text em { font-style: normal; color: var(--red); }
+.catch-sub {
+  margin-top: 40px; font-size: clamp(15px,1.6vw,18px); font-weight: 300;
+  color: var(--text3); max-width: 520px; line-height: 1.7;
+}
+
+/* ══════════════════════════════
+   ABOUT — V3 profile-band
+══════════════════════════════ */
+.profile-band {
+  background: var(--bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.profile-band-inner {
+  padding: 80px max(24px,8vw); display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px,6vw,96px); align-items: center;
+  max-width: 1200px; margin: 0 auto;
+}
+/* big left text like V3 "13 years directing..." */
+.profile-text {
+  font-size: clamp(20px,2.6vw,34px); font-weight: 300; line-height: 1.45;
+  letter-spacing: -0.02em; color: var(--text2);
+}
+.profile-text strong { color: var(--text); font-weight: 600; }
+.profile-text .profile-award {
+  display: inline-block; margin-top: 24px;
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--red); border: 1px solid rgba(212,49,58,0.3);
+  padding: 5px 12px; border-radius: 4px;
+}
+.fact-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px 0; border-bottom: 1px solid var(--border); gap: 16px;
+}
+.fact-row:first-child { border-top: 1px solid var(--border); }
+.fact-k { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); flex-shrink: 0; }
+.fact-v { font-size: 13px; font-weight: 400; color: var(--text); text-align: right; }
+
+/* ══════════════════════════════
+   KEY PROJECTS — V5 ghost year 3-col
+══════════════════════════════ */
+.projects-section { background: var(--bg1); border-top: 1px solid var(--border); }
+.section-wrap { max-width: 1200px; margin: 0 auto; padding: 96px 24px; }
+.sec-label {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 12px;
+}
+.sec-title {
+  font-size: clamp(32px,4vw,52px); font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.05; color: var(--text); margin-bottom: 48px;
+}
+/* centered title variant */
+.sec-title.center, .sec-label.center { text-align: center; }
+.sec-title.center { margin-bottom: 16px; }
+.sec-center-sub { text-align: center; font-size: clamp(15px,1.6vw,18px); font-weight: 300; color: var(--text2); max-width: 640px; margin: 0 auto 56px; line-height: 1.7; }
+
+.project-item {
+  border-top: 1px solid var(--border); padding: 44px 0;
+  display: grid; grid-template-columns: 170px 1fr 160px; gap: 32px; align-items: start;
+}
+.project-item:last-child { border-bottom: 1px solid var(--border); }
+.project-year {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px,5.5vw,72px); line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.14);
+  letter-spacing: 2px; transition: -webkit-text-stroke 0.3s;
+  white-space: nowrap; word-break: normal; hyphens: none;
+}
+.project-item:hover .project-year { -webkit-text-stroke: 1px rgba(212,49,58,0.5); }
+.project-role {
+  font-family: 'DM Mono', monospace; font-size: 10px; color: var(--red);
+  text-transform: uppercase; letter-spacing: 0.15em; margin-top: 10px;
+}
+.project-title {
+  font-size: clamp(18px,2vw,25px); font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 12px; line-height: 1.15; word-break: break-word;
+}
+.project-desc { color: var(--text2); font-size: 14px; line-height: 1.75; margin-bottom: 14px; font-weight: 300; }
+.project-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill-tag {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.07em;
+  padding: 4px 11px; border-radius: 980px; border: 1px solid var(--border2);
+  color: var(--text2); white-space: nowrap; transition: border-color 0.2s, color 0.2s;
+}
+.pill-tag:hover { border-color: rgba(212,49,58,0.4); color: var(--text); }
+.project-metric { text-align: right; }
+.metric-pair { margin-bottom: 16px; }
+.metric-num {
+  font-size: clamp(24px,2.8vw,34px); font-weight: 800; color: var(--red);
+  line-height: 1; letter-spacing: -0.02em; white-space: nowrap;
+}
+.metric-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+/* ══════════════════════════════
+   GAMING DNA — V3 cards, centered title
+══════════════════════════════ */
+.gaming-section { border-top: 1px solid var(--border); }
+.gaming-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 52px; }
+.gaming-card {
+  background: var(--bg1); border: 1px solid var(--border); border-radius: 20px;
+  padding: 40px 32px; text-align: center; transition: border-color 0.25s, background 0.25s;
+}
+.gaming-card:hover { border-color: rgba(212,49,58,0.3); background: var(--bg2); }
+.gaming-num { font-size: clamp(52px,7vw,88px); font-weight: 800; line-height: 1; color: var(--red2); margin-bottom: 16px; letter-spacing: -0.03em; }
+.gaming-card-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 12px; letter-spacing: -0.01em; }
+.gaming-card-desc { font-size: 14px; font-weight: 300; color: var(--text2); line-height: 1.7; }
+
+/* ══════════════════════════════
+   FULL HISTORY — V5 timeline style, centered title
+══════════════════════════════ */
+.timeline-section { background: var(--bg1); border-top: 1px solid var(--border); }
+.tl-item {
+  display: grid; grid-template-columns: 160px 1fr auto;
+  gap: 28px; padding: 26px 0; border-bottom: 1px solid var(--border);
+  align-items: start; transition: padding-left 0.2s; cursor: default;
+}
+.tl-item:first-child { border-top: 1px solid var(--border); }
+.tl-item:hover { padding-left: 6px; }
+.tl-year { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: var(--text2); padding-top: 2px; white-space: nowrap; }
+.tl-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+.tl-desc { font-size: 13px; font-weight: 300; color: var(--text2); line-height: 1.55; }
+.tl-tag {
+  display: inline-block; margin-top: 8px;
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--red2); background: rgba(212,49,58,0.1); padding: 3px 9px; border-radius: 4px; white-space: nowrap;
+}
+.tl-loc { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--text3); white-space: nowrap; padding-top: 4px; text-align: right; }
+.tl-item.career { background: rgba(255,255,255,0.015); }
+.tl-badge {
+  display: inline-block; margin-top: 8px;
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--red); border: 1px solid rgba(212,49,58,0.3); padding: 3px 9px; border-radius: 4px;
+}
+.tl-item.tl-hidden { display: none; }
+.tl-expand-btn {
+  margin-top: 24px; display: flex; align-items: center; gap: 12px;
+  background: none; border: 1px solid var(--border2); border-radius: 980px;
+  padding: 10px 24px; color: var(--text2);
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer; transition: border-color 0.2s, color 0.2s;
+}
+.tl-expand-btn:hover { border-color: rgba(212,49,58,0.4); color: var(--text); }
+.tl-expand-btn .arr { transition: transform 0.3s; display: inline-block; }
+.tl-expand-btn.open .arr { transform: rotate(180deg); }
+
+/* ══════════════════════════════
+   AWARD — V3/V5 card, Outfit font
+══════════════════════════════ */
+.award-section { border-top: 1px solid var(--border); padding: 80px max(24px,8vw); display: flex; align-items: center; justify-content: center; }
+.award-card {
+  background: var(--bg1); border: 1px solid rgba(212,49,58,0.2); border-radius: 24px;
+  padding: clamp(36px,5vw,72px); text-align: center; max-width: 600px; width: 100%;
+  position: relative; overflow: hidden;
+}
+.award-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 100% 80% at 50% 0%, rgba(212,49,58,0.07) 0%, transparent 70%); pointer-events: none; }
+.award-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--red2); border: 1px solid rgba(212,49,58,0.3); border-radius: 980px; padding: 6px 16px; margin-bottom: 28px;
+}
+/* V3 font style for award title */
+.award-title { font-size: clamp(28px,4vw,48px); font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 12px; line-height: 1; }
+.award-org { font-size: 15px; font-weight: 300; color: var(--text2); margin-bottom: 4px; }
+.award-year { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--text3); margin-top: 8px; }
+
+/* ══════════════════════════════
+   SKILLS — V3 pills
+══════════════════════════════ */
+.skills-section { background: var(--bg1); border-top: 1px solid var(--border); }
+.skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-top: 48px; }
+.skills-col { background: var(--bg2); padding: 36px 28px; }
+.skills-col-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--red); margin-bottom: 22px; }
+.skills-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.stag { font-size: 13px; font-weight: 400; padding: 6px 13px; border-radius: 980px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text2); transition: border-color 0.2s, color 0.2s; white-space: nowrap; }
+.stag:hover { border-color: rgba(212,49,58,0.4); color: var(--text); }
+
+/* ══════════════════════════════
+   CONTACT
+══════════════════════════════ */
+.contact-section {
+  padding: 120px max(24px,8vw); text-align: center; border-top: 1px solid var(--border);
+  background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(212,49,58,0.08) 0%, transparent 70%);
+}
+.contact-title { font-size: clamp(32px,6vw,68px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 20px; }
+.contact-sub { color: var(--text2); font-size: 16px; font-weight: 300; margin-bottom: 48px; line-height: 1.75; }
+.contact-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 13px 28px; border-radius: 980px; border: 1px solid var(--border2); color: var(--text); white-space: nowrap; transition: all 0.2s; }
+.btn:hover { border-color: var(--text2); }
+.btn.fill { background: var(--red); border-color: var(--red); color: #fff; }
+.btn.fill:hover { background: var(--red2); border-color: var(--red2); }
+
+/* ── TIMELINE SECTION HEADERS ── */
+.tl-company-row {
+  padding: 36px 0 14px; border-bottom: 1px solid var(--border2);
+  margin-bottom: 0;
+}
+.tl-company-row:not(:first-child) { margin-top: 48px; }
+.tl-co-name { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.tl-co-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 3px; letter-spacing: .08em; }
+.tl-role-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 0 4px;
+}
+.tl-role-lbl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); white-space: nowrap; }
+.tl-role-line { flex: 1; height: 1px; background: var(--border); }
+.tl-role-period { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); white-space: nowrap; }
+.tl-toggle-btn {
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3);
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  padding: 2px 10px; cursor: pointer; white-space: nowrap;
+  transition: border-color .2s, color .2s;
+}
+.tl-toggle-btn:hover { border-color: var(--red); color: var(--red); }
+.tl-group { }
+.tl-group.tl-group-hidden { display: none; }
+/* ensure all tl-items in timeline have top border */
+.tl-list .tl-item { border-top: none; }
+.tl-list .tl-item:first-of-type { border-top: none; }
+.archive-section { border-top: 1px solid var(--border); }
+.co-block { margin-bottom: 72px; }
+.co-block:last-child { margin-bottom: 0; }
+.co-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border2); }
+.co-name { font-size: clamp(18px,2.2vw,24px); font-weight: 700; letter-spacing: -0.01em; color: var(--text); white-space: nowrap; }
+.co-rule { height: 1px; background: var(--border); }
+.co-period { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); white-space: nowrap; letter-spacing: .08em; }
+.role-sec { margin-bottom: 40px; }
+.role-head { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.role-name { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); white-space: nowrap; }
+.role-line { flex: 1; height: 1px; background: var(--border); }
+.role-period-txt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); white-space: nowrap; }
+.role-toggle-btn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 9px; cursor: pointer; transition: border-color .2s, color .2s; white-space: nowrap; }
+.role-toggle-btn:hover { border-color: var(--red); color: var(--red); }
+.role-body.hidden { display: none; }
+.cat-block { margin-top: 20px; }
+.cat-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.arch-row { display: grid; grid-template-columns: 68px 1fr minmax(60px, auto); gap: 20px; align-items: baseline; padding: 11px 8px; border-bottom: 1px solid rgba(255,255,255,.05); transition: background .18s, padding-left .18s; cursor: default; }
+.arch-row:hover { background: rgba(255,255,255,.03); padding-left: 14px; }
+.arch-year { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3); letter-spacing: .06em; white-space: nowrap; }
+.arch-name { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.45; }
+.arch-name strong { color: var(--text); font-weight: 500; }
+.arch-loc { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); white-space: nowrap; text-align: right; letter-spacing: .06em; }
+
+/* ── FOOTER ── */
+footer { border-top: 1px solid var(--border); padding: 28px max(24px,8vw); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-langs { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-lang { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--text3); }
+.footer-lang span { color: var(--red); margin-left: 6px; }
+.footer-copy { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: var(--text3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  .nav-links { display: none; } .nav-cta { display: none; } .nav-toggle { display: block; }
+  .nav-links.open { display: flex !important; flex-direction: column; list-style: none; position: absolute; top: 56px; left: 0; right: 0; background: rgba(0,0,0,0.97); backdrop-filter: blur(20px); padding: 24px; gap: 20px; border-bottom: 1px solid var(--border); z-index: 199; }
+  .profile-band-inner { grid-template-columns: 1fr; gap: 40px; }
+  .gaming-cards { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .project-item { grid-template-columns: 1fr; gap: 12px; }
+  .project-metric { text-align: left; }
+  .tl-item { grid-template-columns: 120px 1fr; } .tl-loc { display: none; }
+  .catchphrase { min-height: 60svh; }
+}
+@media (max-width: 640px) {
+  .hero-stats-row { gap: 24px; }
+  .hero-pills { gap: 8px; }
+  .tl-item { grid-template-columns: 1fr; gap: 6px; }
+  .arch-row { grid-template-columns: 52px 1fr; } .arch-loc { display: none; }
+  .co-head { grid-template-columns: 1fr auto; } .co-rule { display: none; }
+  .contact-btns { flex-direction: column; align-items: center; }
+  footer { flex-direction: column; align-items: flex-start; }
+  .catch-text { font-size: clamp(38px, 10vw, 72px); }
+}
+@media (min-width: 1400px) {
+  .section-wrap { padding-left: 0; padding-right: 0; }
+  .catchphrase { padding-left: calc((100vw - 1200px) / 2); padding-right: calc((100vw - 1200px) / 2); }
+  .profile-band-inner { padding-left: 0; padding-right: 0; }
+}
+
+/* ── ANIMATION TRANSITIONS — declared last to win all specificity battles ── */
+[data-anim] {
+  transition:
+    opacity 0.85s cubic-bezier(0.16,1,0.3,1),
+    transform 0.85s cubic-bezier(0.16,1,0.3,1);
+  transition-delay: var(--delay, 0s);
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo">Eon <span>Lee</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#gaming">Gaming DNA</a></li>
+    <li><a href="#history">Full History</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="/cdn-cgi/l/email-protection#dcb9b3b2b0b9b9e4edef9cbbb1bdb5b0f2bfb3b1" class="nav-cta">Get in Touch</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ═══════════════════════════
+     HERO — V3 exact
+═══════════════════════════ -->
+<section class="hero">
+  <div class="hero-eyebrow">Event Producer · Global Live Production</div>
+  <h1 class="hero-headline">EON LEE</h1>
+  <p class="hero-sub">Stadium esports. Olympic ceremonies.<br>Broadcast launches. 20+ countries.</p>
+  <div class="hero-pills">
+    <span class="pill">Esports Tournament Direction</span>
+    <span class="pill">Live Broadcast</span>
+    <span class="pill">Opening Ceremonies</span>
+    <span class="pill">Fan Experience</span>
+    <span class="pill">Global Ops</span>
+  </div>
+  <div class="hero-stats-row">
+    <div><div class="hero-stat-num">86+</div><div class="hero-stat-label">Projects</div></div>
+    <div><div class="hero-stat-num">20+</div><div class="hero-stat-label">Countries</div></div>
+    <div><div class="hero-stat-num">13</div><div class="hero-stat-label">Years</div></div>
+    <div><div class="hero-stat-num">$100M+</div><div class="hero-stat-label">Budget</div></div>
+  </div>
+  <div class="hero-scroll-hint"><div class="scroll-line"></div></div>
+</section>
+
+<!-- ═══════════════════════════
+     CATCHPHRASE SECTION
+═══════════════════════════ -->
+<section class="catchphrase" id="catchphrase">
+  <div class="catchphrase-inner" data-anim="up">
+    <div class="catch-label">What I Do</div>
+    <div class="catch-text">
+      I BUILD WORLDS<br>
+      THAT <em>PLAYERS</em><br>
+      REMEMBER
+    </div>
+    <p class="catch-sub">
+      Driven by player empathy and a lifetime of competitive gaming — from Famicom to packed stadiums.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     ABOUT — V3 profile-band
+═══════════════════════════ -->
+<div class="profile-band" id="about">
+  <div class="profile-band-inner">
+    <div data-anim="left">
+      <p class="profile-text">
+        <strong>13 years</strong> directing global live events at Cheil Worldwide — Samsung's global marketing agency.<br><br>
+        Specialist in <strong>esports productions, global flagship launches, and broadcast-first events</strong> that bridge technical precision with community-driven storytelling.
+        <span class="profile-award">★ Professional of the Year 2025</span>
+      </p>
+    </div>
+    <div data-anim="right" style="--delay:.15s">
+      <div class="fact-row"><span class="fact-k">Role</span><span class="fact-v">Senior Manager, Global Experiential Marketing</span></div>
+      <div class="fact-row"><span class="fact-k">Company</span><span class="fact-v">Cheil Worldwide (Samsung's Agency)</span></div>
+      <div class="fact-row"><span class="fact-k">Location</span><span class="fact-v">Seoul · Open to Relocation</span></div>
+      <div class="fact-row"><span class="fact-k">Degree</span><span class="fact-v">BBA & Economics · GPA 4.1</span></div>
+      <div class="fact-row"><span class="fact-k">Languages</span><span class="fact-v">English · Korean · Japanese (N2)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     KEY PROJECTS
+═══════════════════════════ -->
+<section id="projects" class="projects-section">
+  <div class="section-wrap">
+    <div data-anim="up" style="text-align:center">
+      <div class="sec-label center">Selected Work</div>
+      <div class="sec-title center">Key Projects</div>
+    </div>
+
+    <div data-anim="up" style="--delay:.12s">
+
+    <div class="project-item">
+      <div><div class="project-year">2025</div><div class="project-role">Project Director</div></div>
+      <div>
+        <div class="project-title">Gamescom Samsung Gaming Festival</div>
+        <div class="project-desc">Stadium-scale show in Cologne — live broadcast, pro-gamer & influencer integration, multi-IP fan zones for PUBG, Genshin Impact, Honkai: Star Rail, Mongil. 1,500 daily attendees.</div>
+        <div class="project-pills"><span class="pill-tag">Esports</span><span class="pill-tag">Live Show</span><span class="pill-tag">Fan Zones</span><span class="pill-tag">Cologne</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">250K</div><div class="metric-label">Peak Viewers</div></div>
+        <div class="metric-pair"><div class="metric-num">+67%</div><div class="metric-label">vs. Prev. Year</div></div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div><div class="project-year">2018</div><div class="project-role">Tournament Producer</div></div>
+      <div>
+        <div class="project-title">Epic Games · Fortnite Korea Open</div>
+        <div class="project-desc">Korea's first national Fortnite tournament — PC-bang qualifiers to 3,500-seat sold-out stadium final. 1,000 early-bird tickets sold in 2 days. In-game mechanics synced with live stage effects.</div>
+        <div class="project-pills"><span class="pill-tag">Esports</span><span class="pill-tag">Stadium Final</span><span class="pill-tag">In-Game Integration</span><span class="pill-tag">Seoul · Busan</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">1.34M</div><div class="metric-label">Online Viewers</div></div>
+        <div class="metric-pair"><div class="metric-num">100%</div><div class="metric-label">Stadium Capacity</div></div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div><div class="project-year">2026</div><div class="project-role">Operations Lead</div></div>
+      <div>
+        <div class="project-title">Milano Cortina Winter Olympics · Samsung House</div>
+        <div class="project-desc">VIP Opening Ceremony & athlete engagement for 2,950 participants across 90 nations. IOC compliance, physical security plans, 6 mountain cluster logistics.</div>
+        <div class="project-pills"><span class="pill-tag">Opening Ceremony</span><span class="pill-tag">Security & Risk</span><span class="pill-tag">VIP Ops</span><span class="pill-tag">IOC Compliance</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">670%</div><div class="metric-label">Marketing ROI</div></div>
+        <div class="metric-pair"><div class="metric-num">99%</div><div class="metric-label">Device Activation</div></div>
+      </div>
+    </div>
+
+    <!-- Year fix: split into two lines using font-size trick -->
+    <div class="project-item">
+      <div><div class="project-year">2019<br>2025</div><div class="project-role">Show Director</div></div>
+      <div>
+        <div class="project-title">Samsung Galaxy Unpacked</div>
+        <div class="project-desc">Global flagship launch ceremonies in New York — set design, keynote direction, live-to-air broadcast with global synchronization across all time zones.</div>
+        <div class="project-pills"><span class="pill-tag">Live Broadcast</span><span class="pill-tag">Keynote Direction</span><span class="pill-tag">New York</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">580K</div><div class="metric-label">Peak Viewers</div></div>
+        <div class="metric-pair"><div class="metric-num">+29%</div><div class="metric-label">vs. Prev. Year</div></div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div><div class="project-year">21–24</div><div class="project-role">Project Director</div></div>
+      <div>
+        <div class="project-title">Samsung Developers Conference</div>
+        <div class="project-desc">Annual flagship developer conferences in San Francisco & San Jose — keynote production, developer programs, full on-site operations.</div>
+        <div class="project-pills"><span class="pill-tag">Conference</span><span class="pill-tag">Keynote</span><span class="pill-tag">San Jose · SF</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">300%</div><div class="metric-label">Attendance Growth</div></div>
+      </div>
+    </div>
+
+    <div class="project-item">
+      <div><div class="project-year">15–25</div><div class="project-role">Event Lead</div></div>
+      <div>
+        <div class="project-title">CES · IFA Berlin · MWC Barcelona</div>
+        <div class="project-desc">A decade directing Samsung's flagship presence at the world's three premier tech exhibitions — booth ops, media conference productions, 150,000+ visitors.</div>
+        <div class="project-pills"><span class="pill-tag">Exhibition</span><span class="pill-tag">Media Conference</span><span class="pill-tag">LV · Berlin · Barcelona</span></div>
+      </div>
+      <div class="project-metric">
+        <div class="metric-pair"><div class="metric-num">150K+</div><div class="metric-label">Global Visitors</div></div>
+      </div>
+    </div>
+
+    </div><!-- /projects group -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     GAMING DNA — V3 cards, centered title
+═══════════════════════════ -->
+<section id="gaming" class="gaming-section">
+  <div class="section-wrap">
+    <div data-anim="up">
+      <div class="sec-label center">Player DNA</div>
+      <div class="sec-title center">Gaming Background</div>
+      <p class="sec-center-sub">Not just a producer who works with games — a gamer who produces events. Three decades of playing means understanding what audiences feel in the room.</p>
+    </div>
+    <div class="gaming-cards">
+      <div class="gaming-card" data-anim="scale" style="--delay:.08s">
+        <div class="gaming-num">30</div>
+        <div class="gaming-card-title">Years of Gaming</div>
+        <div class="gaming-card-desc">Active since the Famicom era — 500+ titles across three decades. Deep connection to the LoL esports ecosystem and the live energy of competitive events.</div>
+      </div>
+      <div class="gaming-card" data-anim="scale" style="--delay:.22s">
+        <div class="gaming-num">TOP<br>300</div>
+        <div class="gaming-card-title">KartRider National Ranking</div>
+        <div class="gaming-card-desc">Nationally ranked in Korea's premier competitive racing title. Firsthand understanding of player psychology, competitive environments, and high-pressure performance.</div>
+      </div>
+      <div class="gaming-card" data-anim="scale" style="--delay:.36s">
+        <div class="gaming-num">10</div>
+        <div class="gaming-card-title">Years Leading a Guild</div>
+        <div class="gaming-card-desc">Led a Mabinogi guild for a decade — managing player sentiment, resolving conflicts, and building lasting bonds that define real communities.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FULL HISTORY -->
+<section id="history" class="timeline-section">
+  <div class="section-wrap">
+    <div data-anim="up">
+    <div class="sec-label center">Full History</div>
+    <div class="sec-title center">PROJECT ARCHIVE</div>
+    </div>
+
+    <!-- ═══ CHEIL WORLDWIDE ═══ -->
+    <div class="co-block" data-anim="up" style="--delay:.06s">
+      <div class="co-head">
+        <div class="co-name">CHEIL WORLDWIDE</div>
+        <div class="co-rule"></div>
+        <div class="co-period">Sep 2012 – Mar 2026 &nbsp;·&nbsp; Samsung's Global Marketing Agency &nbsp;·&nbsp; Seoul</div>
+      </div>
+
+      <!-- SENIOR MANAGER -->
+      <div class="role-sec">
+        <div class="role-head">
+          <div class="role-name">Senior Manager</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">2017 – 2026</div>
+        </div>
+        <div class="role-body">
+          <div class="cat-block">
+            <div class="cat-title">Esports &amp; Gaming</div>
+            <div class="arch-row"><div class="arch-year">2025</div><div class="arch-name"><strong>Gamescom Samsung Gaming Festival</strong> — Stadium-scale show, multi-IP fan zones (PUBG, Genshin Impact, Honkai: Star Rail, Mongil), 1,500 daily attendees, 250K peak viewers (+67%)</div><div class="arch-loc">Cologne</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Olympics &amp; Sports</div>
+            <div class="arch-row"><div class="arch-year">2026</div><div class="arch-name"><strong>Milano Cortina Winter Olympics — Samsung House &amp; Village</strong> — VIP Opening Ceremony, 2,950 athletes across 90 nations, 6 mountain clusters, IOC compliance &amp; physical security</div><div class="arch-loc">Italy</div></div>
+            <div class="arch-row"><div class="arch-year">2020</div><div class="arch-name"><strong>Samsung QLED KES (한국전자전)</strong> — VIP tour operations</div><div class="arch-loc">Seoul</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Global Flagship Launches</div>
+            <div class="arch-row"><div class="arch-year">2025</div><div class="arch-name"><strong>Samsung Galaxy Unpacked 2H</strong> — Show direction, keynote production, live-to-air broadcast, influencer party, 580K peak viewers</div><div class="arch-loc">New York</div></div>
+            <div class="arch-row"><div class="arch-year">2025</div><div class="arch-name"><strong>Galaxy Watch Community Campaign</strong> — Marathon program planning, Benelux region</div><div class="arch-loc">Benelux, EU</div></div>
+            <div class="arch-row"><div class="arch-year">2017</div><div class="arch-name"><strong>Samsung QLED TV Global Launch</strong> — Show production at Louvre Museum</div><div class="arch-loc">Paris</div></div>
+            <div class="arch-row"><div class="arch-year">2017</div><div class="arch-name"><strong>Samsung The Frame Media Day</strong> — Exhibition &amp; media event</div><div class="arch-loc">Seoul</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Developer Conferences</div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>Samsung Developers Conference (SDC)</strong> — Full keynote production &amp; event operations</div><div class="arch-loc">San Jose</div></div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>Samsung Developers Conference (SDC)</strong> — Show &amp; operations lead</div><div class="arch-loc">San Francisco</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>Samsung Developers Conference (SDC)</strong> — Show &amp; operations lead</div><div class="arch-loc">San Francisco</div></div>
+            <div class="arch-row"><div class="arch-year">2021</div><div class="arch-name"><strong>Samsung Developers Conference (SDC) — Online</strong> — Digital conference production</div><div class="arch-loc">Global</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Global Exhibitions</div>
+            <div class="arch-row"><div class="arch-year">2025</div><div class="arch-name"><strong>CES 2025 — Samsung Media Conference</strong> — Show production &amp; Mobile Division keynote</div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>CES 2024 — Samsung Media Conference</strong> — Show production &amp; on-site operations</div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>IFA Berlin 2024</strong> — End-to-end exhibition strategy, Samsung Mobile &amp; Digital Appliances</div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>MWC Barcelona 2024</strong> — Booth production &amp; on-site operations, Mobile Division</div><div class="arch-loc">Barcelona</div></div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>CES 2023 — Samsung Media Conference &amp; VD First Look</strong> — Show production &amp; on-site operations</div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>CES 2022 — Samsung Mobile Division &amp; Media Conference</strong> — Full booth operations &amp; keynote show production</div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>IFA Berlin 2019 — DA Division</strong></div><div class="arch-loc">Berlin</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Media Events &amp; Brand Programs</div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>Seoul Edition in Tokyo</strong> — K-concert &amp; tourism promotion programs (Seoul Tourism Foundation)</div><div class="arch-loc">Tokyo</div></div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>Samsung Bespoke Home Life Media Day</strong> — Show production &amp; on-site operations</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2021</div><div class="arch-name"><strong>Career Development Instructor</strong> — Samsung Group experienced-hire orientation</div><div class="arch-loc">Yongin</div></div>
+            <div class="arch-row"><div class="arch-year">2021</div><div class="arch-name"><strong>Gen Z Lab Planning</strong> — Strategic planning for Samsung Gen Z division</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2020</div><div class="arch-name"><strong>BliBli Untact Fan Meeting — Park Seo-jun</strong> — Virtual fan meeting production</div><div class="arch-loc">Remote</div></div>
+            <div class="arch-row"><div class="arch-year">2020</div><div class="arch-name"><strong>Samsung PRISM3 Media Day</strong> — DA launch event operations</div><div class="arch-loc">Seoul</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Corporate &amp; Internal Events</div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>Hyundai Motors Treat Program</strong> — Employee event &amp; booth programming</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>Naver Integrated Conference (DAN 24)</strong> — Media lounge planning &amp; show direction</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>Samsung Engineering Name Change Ceremony</strong> — CEO keynote production</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2024</div><div class="arch-name"><strong>Samsung Electronics Shareholders Meeting</strong> — Keynote production &amp; on-site event operations</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>Samsung Electronics Shareholders Meeting</strong> — Keynote production &amp; on-site event operations</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2023</div><div class="arch-name"><strong>Samsung Robot EX1 Launch Experience Zone</strong> — Program planning</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>Samsung Mobile RAINBOW Fan Party</strong> — Fan show at Everland, 20 teams</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>Samsung VD Eco Package Exhibition</strong> — IFC Mall booth &amp; production</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>Samsung PRISM5 Media Day</strong> — DA launch event operations</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2022</div><div class="arch-name"><strong>Samsung Electronics Shareholders Meeting (Extraordinary)</strong></div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2021</div><div class="arch-name"><strong>Samsung Electronics Annual Shareholders Meeting</strong></div><div class="arch-loc">Seoul</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIELD DIRECTOR -->
+      <div class="role-sec">
+        <div class="role-head">
+          <div class="role-name">Field Director — Overseas Deployment</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">Aug 2019 – Mar 2020</div>
+        </div>
+        <div class="role-body">
+          <div class="cat-block">
+            <div class="arch-row"><div class="arch-year">2019–20</div><div class="arch-name"><strong>Samsung Galaxy Project — Afkharkom Ma3</strong> — University campus promotions, influencer talkshows &amp; government partnership events</div><div class="arch-loc">Riyadh · Jeddah</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANAGER -->
+      <div class="role-sec">
+        <div class="role-head" id="mgrHead">
+          <div class="role-name">Manager</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">2017 – 2019</div>
+          <button class="role-toggle-btn" id="mgrBtn">+ Show</button>
+        </div>
+        <div class="role-body hidden" id="mgrBody">
+          <div class="cat-block">
+            <div class="cat-title">Flagship Launches</div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>Samsung Galaxy Unpacked 2H</strong> — Event program planning &amp; on-site operations</div><div class="arch-loc">New York</div></div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>Galaxy A Series Launch</strong> — Show program &amp; on-site operations</div><div class="arch-loc">Milan</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Esports &amp; Gaming</div>
+            <div class="arch-row"><div class="arch-year">2018</div><div class="arch-name"><strong>Epic Games Fortnite Korea Open</strong> — Full tournament production, PC-bang qualifiers → stadium final, 1.34M online viewers</div><div class="arch-loc">Seoul · Busan</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Global Exhibitions &amp; Events</div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>Samsung Cannes Lions Lounge</strong> — Booth planning &amp; on-site</div><div class="arch-loc">Cannes</div></div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>CES 2019 — Samsung Exhibition (Global &amp; Korea VIP)</strong></div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>MWC Barcelona 2019 — Mobile Division</strong></div><div class="arch-loc">Barcelona</div></div>
+            <div class="arch-row"><div class="arch-year">2019</div><div class="arch-name"><strong>Sandbox Network Jazz Festival</strong> — Brand booth &amp; on-site</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2018</div><div class="arch-name"><strong>IFA Berlin 2018 — DA Division</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2018</div><div class="arch-name"><strong>Samsung Crown Studio India</strong> — Studio production &amp; operations</div><div class="arch-loc">Gurugram</div></div>
+            <div class="arch-row"><div class="arch-year">2018</div><div class="arch-name"><strong>Samsung Forum Roma</strong> — Mobile division booth &amp; operations</div><div class="arch-loc">Rome</div></div>
+            <div class="arch-row"><div class="arch-year">2017</div><div class="arch-name"><strong>Samsung Galaxy Retail L&amp;D Challenge Promotion</strong> — Incentive event across 4 countries</div><div class="arch-loc">Multi-country</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASSOCIATE -->
+      <div class="role-sec">
+        <div class="role-head" id="assocHead">
+          <div class="role-name">Associate</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">2012 – 2017</div>
+          <button class="role-toggle-btn" id="assocBtn">+ Show</button>
+        </div>
+        <div class="role-body hidden" id="assocBody">
+          <div class="cat-block">
+            <div class="cat-title">Olympics &amp; Sports</div>
+            <div class="arch-row"><div class="arch-year">2016</div><div class="arch-name"><strong>Lillehammer Youth Olympic Games</strong> — Samsung truck &amp; VR booth, event planning</div><div class="arch-loc">Norway</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>Galaxy Cup Football Tournament</strong> — Galaxy Studio at Duomo di Milano</div><div class="arch-loc">Milan</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Sochi Winter Olympics — Samsung Athlete Village Studio</strong></div><div class="arch-loc">Russia</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Galaxy11 Football Studio &amp; World Cup</strong> — Celebrity football activation at Duomo</div><div class="arch-loc">Milan · Global</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>Surfing Marketing Campaign</strong> — Brand experience studio</div><div class="arch-loc">Rio de Janeiro</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Flagship Launches</div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>Samsung Galaxy Unpacked Episode 2</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>Galaxy World Tour Exhibition</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Samsung Premiere 2014 (1H)</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Galaxy Unpacked Episode II at IFA</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Mobile World Tour J</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>REX Launch Event — India</strong></div><div class="arch-loc">India</div></div>
+            <div class="arch-row"><div class="arch-year">2012</div><div class="arch-name"><strong>Galaxy Note 10.1 Launch — US Studio</strong></div><div class="arch-loc">USA</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Galaxy Studio &amp; Brand Experience</div>
+            <div class="arch-row"><div class="arch-year">2016</div><div class="arch-name"><strong>Samsung Galaxy Studio (1H)</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>Samsung Galaxy Studio World Tour (2H)</strong></div><div class="arch-loc">Dubai · London</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Galaxy Studio at Fashion Week</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Samsung Beijing Brand Store Renovation</strong></div><div class="arch-loc">Beijing</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Samsung Galaxy Studio CES 2015</strong> — Marvel collab booth</div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Galaxy Studio — AlexanderPlatz</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Galaxy Studio — Portobello (IYL)</strong></div><div class="arch-loc">London</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Galaxy Studio Toolkit Development</strong> — Rulebook &amp; retail guidebook</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Galaxy Studio CES 2013</strong></div><div class="arch-loc">Las Vegas</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Major Exhibitions</div>
+            <div class="arch-row"><div class="arch-year">2017</div><div class="arch-name"><strong>CES 2017 — Samsung Mobile Division</strong></div><div class="arch-loc">Las Vegas</div></div>
+            <div class="arch-row"><div class="arch-year">2016</div><div class="arch-name"><strong>IFA Berlin 2016 — Mobile Division</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>IFA Berlin 2015</strong></div><div class="arch-loc">Berlin</div></div>
+            <div class="arch-row"><div class="arch-year">2015</div><div class="arch-name"><strong>MWC Barcelona 2015</strong></div><div class="arch-loc">Barcelona</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Cannes Lions — Samsung Galaxy Experience Zone</strong></div><div class="arch-loc">Cannes</div></div>
+            <div class="arch-row"><div class="arch-year">2014</div><div class="arch-name"><strong>Photo &amp; Imaging 2014 — Samsung Camera Event</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>MWC 2013 — Samsung Studio</strong></div><div class="arch-loc">Barcelona</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Mobile Global Event Forum 2013</strong></div><div class="arch-loc">Global</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>HA Global Showcase Launching Project</strong></div><div class="arch-loc">Global</div></div>
+          </div>
+          <div class="cat-block">
+            <div class="cat-title">Other Programs</div>
+            <div class="arch-row"><div class="arch-year">2016</div><div class="arch-name"><strong>Dong-A Pharmaceutical — National Student March (19th)</strong></div><div class="arch-loc">Korea</div></div>
+            <div class="arch-row"><div class="arch-year">2013</div><div class="arch-name"><strong>Samsung Premiere Event 2013</strong></div><div class="arch-loc">Global</div></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /cheil -->
+
+    <!-- ═══ SAMSUNG C&T ═══ -->
+    <div class="co-block" data-anim="up" style="--delay:.12s">
+      <div class="co-head">
+        <div class="co-name">SAMSUNG C&amp;T</div>
+        <div class="co-rule"></div>
+        <div class="co-period">Aug 2011 – Sep 2012 &nbsp;·&nbsp; Seoul</div>
+      </div>
+      <div class="role-sec">
+        <div class="role-head">
+          <div class="role-name">Trade Associate — Solar Energy Division</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">2011 – 2012</div>
+        </div>
+        <div class="role-body">
+          <div class="cat-block">
+            <div class="arch-row"><div class="arch-year">2012</div><div class="arch-name"><strong>Solar Energy Division — Solar Cell Sales Team</strong> — Global procurement &amp; project-based solar panel sales</div><div class="arch-loc">Seoul</div></div>
+            <div class="arch-row"><div class="arch-year">2011</div><div class="arch-name"><strong>Internship — Solar Energy Division</strong> — Ranked 1st in competitive GSAT recruitment</div><div class="arch-loc">Seoul</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EDUCATION ═══ -->
+    <div class="co-block" data-anim="up" style="--delay:.18s">
+      <div class="co-head">
+        <div class="co-name">HANDONG GLOBAL UNIVERSITY</div>
+        <div class="co-rule"></div>
+        <div class="co-period">2005 – 2011 &nbsp;·&nbsp; Pohang</div>
+      </div>
+      <div class="role-sec">
+        <div class="role-head">
+          <div class="role-name">Bachelor of Business Administration &amp; Economics</div>
+          <div class="role-line"></div>
+          <div class="role-period-txt">GPA 4.1 / 4.5</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- ═══════════════════════════
+     AWARD — V3 font style
+═══════════════════════════ -->
+<div class="award-section" data-anim="scale">
+  <div class="award-card">
+    <div class="award-badge">★ &nbsp;Recognition</div>
+    <div class="award-title">Professional of the Year</div>
+    <div class="award-org">Cheil Worldwide — Annual Company-Wide Award</div>
+    <div class="award-org" style="font-size:13px;margin-top:4px;color:var(--text3)">Outstanding project leadership & client impact</div>
+    <div class="award-year">2025</div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section class="skills-section">
+  <div class="section-wrap">
+    <div data-anim="up"><div class="sec-label">Toolkit</div>
+    <div class="sec-title">Skills & Languages</div></div>
+    <div class="skills-grid">
+      <div class="skills-col" data-anim="up" style="--delay:.1s">
+        <div class="skills-col-title">Event Production</div>
+        <div class="skills-tags">
+          <span class="stag">Live Broadcast</span><span class="stag">Stadium Events</span><span class="stag">Esports Tournaments</span><span class="stag">Show Direction</span><span class="stag">Opening Ceremonies</span><span class="stag">Fan Experience</span><span class="stag">Keynote Production</span><span class="stag">Audience Engagement</span>
+        </div>
+      </div>
+      <div class="skills-col" data-anim="up" style="--delay:.22s">
+        <div class="skills-col-title">Operations & Management</div>
+        <div class="skills-tags">
+          <span class="stag">Budget $100M+</span><span class="stag">Cross-functional Teams</span><span class="stag">Vendor RFP</span><span class="stag">Talent Logistics</span><span class="stag">Stakeholder Mgmt</span><span class="stag">Olympic Protocol</span><span class="stag">Physical Security</span><span class="stag">100-Member Teams</span>
+        </div>
+      </div>
+      <div class="skills-col" data-anim="up" style="--delay:.34s">
+        <div class="skills-col-title">Languages & Tools</div>
+        <div class="skills-tags">
+          <span class="stag">English — Native</span><span class="stag">Korean — Native</span><span class="stag">Japanese — N2</span><span class="stag">Adobe Suite</span><span class="stag">Figma</span><span class="stag">Python</span><span class="stag">PowerPoint / Keynote</span><span class="stag">OPIc Advanced</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div class="contact-section" id="contact">
+  <div class="contact-title" data-anim="up">Let's Build Something<br>Unforgettable</div>
+  <p class="contact-sub" data-anim="up" style="--delay:.15s">Seoul-based. Open to global relocation. Ready to bring world-class live production to the games industry.</p>
+  <div class="contact-btns" data-anim="up" style="--delay:.28s">
+    <a href="/cdn-cgi/l/email-protection#ed888283818888d5dcdead8a808c8481c38e8280" class="btn fill"><span class="__cf_email__" data-cfemail="24414b4a4841411c1517644349454d480a474b49">[email&#160;protected]</span></a>
+    <a href="https://linkedin.com/in/eonlee8" class="btn" target="_blank">LinkedIn</a>
+    <a href="tel:+821062710688" class="btn">+82-10-6271-0688</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-langs">
+    <div class="footer-lang">English<span>Native</span></div>
+    <div class="footer-lang">한국어<span>Native</span></div>
+    <div class="footer-lang">日本語<span>JLPT N2</span></div>
+  </div>
+  <div class="footer-copy">Open to Relocation</div>
+  <div class="footer-copy">© 2026 SooYeong (Eon) Lee · Seoul, South Korea</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ─── APPLE-STYLE ANIMATION ENGINE ─── */
+(function() {
+  const EASING = 'cubic-bezier(0.16,1,0.3,1)';
+
+  // Observe all [data-anim] elements — bidirectional (enter = show, leave = hide)
+  const animObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+      } else {
+        // Remove 'in' so element hides again on scroll away
+        entry.target.classList.remove('in');
+      }
+    });
+  }, { threshold: [0, 0.06], rootMargin: '0px 0px -32px 0px' });
+
+  document.querySelectorAll('[data-anim]').forEach(el => animObs.observe(el));
+
+  /* ─── HERO COUNTUP ─── */
+  const stats = [
+    { el: null, target: 86, suffix: '+', prefix: '' },
+    { el: null, target: 20, suffix: '+', prefix: '' },
+    { el: null, target: 13, suffix: '',  prefix: '' },
+    { el: null, target: 100, suffix: 'M+', prefix: '$' },
+  ];
+
+  const statEls = document.querySelectorAll('.hero-stat-num');
+  statEls.forEach((el, i) => {
+    if (stats[i]) { stats[i].el = el; el.dataset.finalText = el.textContent; }
+  });
+
+  let counted = false;
+  const heroObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !counted) {
+      counted = true;
+      stats.forEach((stat, i) => {
+        if (!stat.el) return;
+        const duration = 1400 + i * 120;
+        const start = performance.now();
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // ease out expo
+          const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.round(ease * stat.target);
+          stat.el.textContent = stat.prefix + current + stat.suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+      heroObs.disconnect();
+    }
+  }, { threshold: 0.5 });
+
+  const statsRow = document.querySelector('.hero-stats-row');
+  if (statsRow) heroObs.observe(statsRow);
+})();
+
+/* ─── NAV ─── */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').style.background = scrollY > 60 ? 'rgba(0,0,0,.96)' : 'rgba(0,0,0,.75)';
+}, { passive: true });
+
+document.getElementById('navToggle').addEventListener('click', () =>
+  document.getElementById('navLinks').classList.toggle('open'));
+document.querySelectorAll('#navLinks a').forEach(a =>
+  a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
+
+/* ─── EXPAND TOGGLES ─── */
+function setupToggle(btnId, bodyId) {
+  const btn = document.getElementById(btnId);
+  const body = document.getElementById(bodyId);
+  if (!btn || !body) return;
+  btn.addEventListener('click', () => {
+    const isHidden = body.classList.toggle('hidden');
+    btn.textContent = isHidden ? '+ Show' : '− Hide';
+  });
+}
+setupToggle('mgrBtn', 'mgrBody');
+setupToggle('assocBtn', 'assocBody');
+</script>
+</body>
+</html>
